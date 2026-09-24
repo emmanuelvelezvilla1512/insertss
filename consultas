@@ -1,0 +1,762 @@
+-- =========================================================================
+-- CONSULTAS
+-- =========================================================================
+
+-- =========================================================================
+-- 4.1 Configuración: Roles y Permisos
+-- =========================================================================
+
+--RF-ROL-01 — Crear un rol con nombre único
+
+SELECT
+id_rol,
+nombre_rol,
+descripcion,
+estado
+FROM roles;
+
+
+--RF-ROL-02 — Asignar permisos específicos a un rol
+SELECT
+roles.nombre_rol,
+permisos.nombre_permiso,
+permisos.descripcion
+FROM rol_permiso
+JOIN roles
+ON rol_permiso.roles_id_rol = roles.id_rol
+JOIN permisos
+ON rol_permiso.permisos_id_permisos = permisos.id_permiso;
+
+
+--RF-ROL-03 — Buscar permisos asociados a un rol
+SELECT
+roles.nombre_rol,
+permisos.nombre_permiso,
+permisos.descripcion
+FROM rol_permiso
+JOIN roles
+ON rol_permiso.roles_id_rol = roles.id_rol
+JOIN permisos
+ON rol_permiso.permisos_id_permisos = permisos.id_permiso
+WHERE roles.id_rol = 1;
+
+
+--RF-ROL-03 — Editar los permisos asociados a un rol
+UPDATE permisos
+SET nombre_permiso = 'editar_usuario',
+descripcion = 'Permite modificar la información de los usuarios'
+WHERE id_permiso = 2;
+
+
+--RF-ROL-04 — Cambiar el estado de los permisos asociados a un rol
+UPDATE permisos
+SET estado = 'inactivo'
+WHERE id_permiso = 20;
+
+
+--RF-ROL-05 — Eliminar los permisos asociados a un rol
+
+
+SELECT
+roles.nombre_rol,
+permisos.nombre_permiso
+FROM rol_permiso
+JOIN roles
+ON rol_permiso.roles_id_rol = roles.id_rol
+JOIN permisos
+ON rol_permiso.permisos_id_permisos = permisos.id_permiso
+WHERE roles.id_rol = 1;
+
+
+--RF-ROL-06 — Listar los permisos asociados a un rol
+SELECT
+roles.nombre_rol,
+permisos.nombre_permiso,
+permisos.descripcion,
+permisos.estado
+FROM rol_permiso
+JOIN roles
+ON rol_permiso.roles_id_rol = roles.id_rol
+JOIN permisos
+ON rol_permiso.permisos_id_permisos = permisos.id_permiso
+WHERE roles.id_rol = 1;
+
+
+
+
+-- =========================================================================
+-- 4.2 Usuarios y Acceso
+-- =========================================================================
+
+--RF-USR-01 — Crear el estado de un usuario
+UPDATE usuarios
+SET estado = 'activo'
+WHERE id_usuario = 1;
+
+
+--RF-USR-02 — Listar el estado de un usuario
+SELECT
+id_usuario,
+primer_nombre,
+primer_apellido,
+email,
+estado
+FROM usuarios;
+
+
+--RF-USR-03 — Buscar el estado de un usuario
+SELECT
+id_usuario,
+primer_nombre,
+primer_apellido,
+email,
+estado
+FROM usuarios
+WHERE id_usuario = 1;
+
+
+--RF-USR-04 — Editar el estado de un usuario
+UPDATE usuarios
+SET estado = 'inactivo'
+WHERE id_usuario = 13;
+
+
+--RF-USR-05 — Cambiar el estado de un usuario
+UPDATE usuarios
+SET estado = 'activo'
+WHERE id_usuario = 13;
+
+
+--RF-ACC-01 — Iniciar sesión
+SELECT
+id_acceso,
+id_usuario,
+tipo_accion,
+fecha_hora,
+ip_origen,
+resultado
+FROM accesos
+WHERE tipo_accion = 'login'
+AND resultado = 'exitoso';
+
+
+--RF-ACC-02 — Cerrar sesión
+SELECT
+id_acceso,
+id_usuario,
+tipo_accion,
+fecha_hora,
+ip_origen,
+resultado
+FROM accesos
+WHERE tipo_accion = 'logout';
+
+
+--RF-ACC-03 — Registrarse
+SELECT
+id_acceso,
+id_usuario,
+tipo_accion,
+fecha_hora,
+resultado
+FROM accesos
+WHERE tipo_accion = 'registro';
+
+
+--RF-ACC-04 — Editar mi perfil
+SELECT
+id_acceso,
+id_usuario,
+tipo_accion,
+fecha_hora,
+resultado
+FROM accesos
+WHERE tipo_accion = 'edicion_perfil';
+
+
+--RF-ACC-05 — Recuperar mi contraseña
+SELECT
+id_acceso,
+id_usuario,
+tipo_accion,
+fecha_hora,
+resultado
+FROM accesos
+WHERE tipo_accion = 'recuperar_password';
+
+
+--RF-ACC-06 — Restablecer mi contraseña
+SELECT
+id_acceso,
+id_usuario,
+tipo_accion,
+fecha_hora,
+resultado
+FROM accesos
+WHERE tipo_accion = 'restablecer_password';
+
+-- =========================================================================
+-- 4.3 Compras, Proveedores y Existencias
+-- =========================================================================
+
+--RF-COM-02 — Asignar a una compra productos con cantidades y precios
+SELECT
+compras.id_compra,
+compras.id_proveedor,
+detalle_compras.id_producto,
+detalle_compras.cantidad,
+detalle_compras.precio_unitario,
+detalle_compras.subtotal
+FROM compras
+JOIN detalle_compras
+ON compras.id_compra = detalle_compras.id_compra;
+
+
+-- RF-COM-03: El sistema debe permitir editar una compra hecha a un proveedor
+UPDATE compras
+SET id_proveedor = 6,
+    fecha_compra = '2026-09-19 10:00:00',
+    total = 7350000.00
+WHERE id_compra = 24;
+
+
+-- RF-COM-04: El sistema debe permitir anular una compra hecha a un proveedor 
+UPDATE compras
+SET estado = 'anulada'
+WHERE id_compra = 24;
+
+
+-- RF-COM-06: Listar proveedores con su estado
+SELECT id_proveedor, nombre, nit, telefono, email, estado
+FROM proveedores
+ORDER BY estado, nombre;
+
+-- RF-COM-07: Buscar un proveedor por nombre o NIT y consultar su estado
+SELECT id_proveedor, nombre, nit, telefono, email, direccion, estado
+FROM proveedores
+WHERE nombre LIKE CONCAT('%', 'Dislicores', '%')
+   OR nit = '890924912-8';
+   
+-- RF-COM-08: El sistema permite editar el estado de un proveedor
+UPDATE compras
+SET estado = 'Anulado'
+where id_compra = 24;
+
+
+-- RF-COM-12: Listar las existencias (stock) de todos los productos
+SELECT id_producto, nombre, stock_actual, stock_minimo, stock_maximo, estado
+FROM productos
+ORDER BY nombre;
+
+
+-- RF-COM-13: Buscar las existencias de un producto por nombre
+SELECT id_producto, nombre, stock_actual, stock_minimo, stock_maximo, estado
+FROM productos
+WHERE nombre LIKE CONCAT('%', 'Ron Medellín', '%');
+
+-- RF-COM-14: El sistema debe permitir editar las existencias de un producto
+UPDATE productos
+SET stock_actual = 20
+WHERE id_producto = 30;
+
+
+-- RF-COM-15: Cuando el stock de un producto llegue al stock mínimo, 
+-- el sistema debe generar una alerta visible en el panel del Administrador.
+
+
+SELECT id_producto, nombre, stock_actual, stock_minimo
+FROM productos
+WHERE stock_actual <= stock_minimo
+  AND estado = 'inactivo';
+
+
+-- =========================================================================
+-- 4.4 INGRESO Y CLIENTES VIP
+-- =========================================================================
+
+--RF-ING-03 — Consultar cada ingreso con fecha, hora, puerta y dispositivo
+SELECT
+id_ingreso,
+id_cliente,
+fecha,
+hora,
+puerta_acceso,
+tipo_dispositivo
+FROM ingresos;
+-- RF-ING-04 — El sistema debe permitir registrar el estado de un cliente VIP, 
+-- con acceso prioritario y beneficios exclusivos
+UPDATE clientes
+SET es_vip = 1,
+    estado = 'activo'
+WHERE id_cliente = 11;
+
+
+
+-- RF-ING-05: El sistema debe permitir consultar el estado de un cliente VIP, 
+-- con acceso prioritario y beneficios exclusivos.
+SELECT id_cliente, CONCAT(primer_nombre, ' ', primer_apellido) AS cliente,
+       es_vip, puntos_acumulados, estado
+FROM clientes
+WHERE es_vip = 1
+ORDER BY puntos_acumulados DESC;
+
+--RF-ING-06 — Actualizar el estado de un cliente VIP
+UPDATE clientes
+SET estado = 'activo'
+WHERE id_cliente = 4
+AND es_vip = 1;
+
+-- RF-ING-07 — "El sistema debe permitir cambiar el estado de un cliente VIP, 
+-- con acceso prioritario y beneficios exclusivos"
+
+UPDATE clientes
+SET estado = 'inactivo'
+WHERE id_cliente = 11
+  AND es_vip = 1;
+
+-- =========================================================================
+-- 4.5 Servicios, Empleados y Reservas
+-- =========================================================================
+
+--RF-SER-02 — Consultar el estado de los servicios
+SELECT
+id_servicio,
+nombre,
+precio,
+estado
+FROM servicios;
+
+--RF-SER-03 — Actualizar el estado de los servicios
+UPDATE servicios
+SET estado = 'inactivo'
+WHERE id_servicio = 6;
+
+--RF-SER-04 — Cambiar el estado de los servicios
+UPDATE servicios
+SET estado = 'activo'
+WHERE id_servicio = 6;
+
+--RF-SER-05 — Consultar categorías de empleados y sus empleados
+SELECT
+categoria_empleado.id_categoria_empleado,
+categoria_empleado.nombre AS categoria,
+empleados.id_empleado,
+empleados.primer_nombre,
+empleados.primer_apellido
+FROM categoria_empleado
+JOIN empleados
+ON categoria_empleado.id_categoria_empleado = empleados.id_categoria_empleado;
+
+--RF-SER-06 — Consultar empleados asociados a una categoría
+SELECT
+empleados.id_empleado,
+empleados.primer_nombre,
+empleados.primer_apellido,
+categoria_empleado.nombre AS categoria
+FROM empleados
+JOIN categoria_empleado
+ON empleados.id_categoria_empleado = categoria_empleado.id_categoria_empleado
+WHERE categoria_empleado.id_categoria_empleado = 2;
+
+--RF-SER-07 — Consultar la agenda de un empleado asociada a servicio o evento
+SELECT
+agenda_empleado.id_agenda_empleado,
+empleados.primer_nombre,
+empleados.primer_apellido,
+servicios.nombre AS servicio,
+evento.nombre AS evento,
+agenda_empleado.fecha,
+agenda_empleado.hora_inicio,
+agenda_empleado.hora_fin,
+agenda_empleado.estado
+FROM agenda_empleado
+JOIN empleados
+ON agenda_empleado.id_empleados = empleados.id_empleado
+LEFT JOIN servicios
+ON agenda_empleado.id_servicios = servicios.id_servicio
+LEFT JOIN evento
+ON agenda_empleado.id_evento = evento.id_evento;
+
+--RF-SER-08 — Consultar reservas asociadas a mesa o espacio VIP
+SELECT
+reservas.id_reserva,
+clientes.primer_nombre,
+clientes.primer_apellido,
+reservas.tipo_espacio,
+reservas.fecha,
+reservas.hora,
+reservas.estado
+FROM reservas
+JOIN clientes
+ON reservas.id_cliente = clientes.id_cliente;
+
+--RF-SER-09 — Consultar el estado de una reserva
+SELECT
+id_reserva,
+id_cliente,
+tipo_espacio,
+fecha,
+hora,
+estado
+FROM reservas;
+
+--RF-SER-10 — Actualizar el estado de una reserva
+UPDATE reservas
+SET estado = 'confirmada'
+WHERE id_reserva = 10;
+
+--RF-SER-11 — Cambiar el estado de una reserva
+UPDATE reservas
+SET estado = 'cancelada'
+WHERE id_reserva = 10;
+
+--RF-SER-12 — Calcular el subtotal de una reserva
+SELECT
+detalle_reserva.id_reserva,
+SUM(detalle_reserva.subtotal) AS subtotal
+FROM detalle_reserva
+GROUP BY detalle_reserva.id_reserva;
+
+--RF-SER-13 — Aplicar un descuento a una reserva
+UPDATE reservas
+SET descuento = 20000.00
+WHERE id_reserva = 3;
+
+--RF-SER-14 — Calcular el valor del descuento aplicado
+SELECT
+id_reserva,
+descuento
+FROM reservas
+WHERE descuento > 0;
+
+--RF-SER-015 — Consultar si existe conflicto de reserva
+SELECT
+id_reserva,
+id_cliente,
+tipo_espacio,
+fecha,
+hora,
+estado
+FROM reservas
+WHERE tipo_espacio = 'vip'
+AND fecha = '2026-09-25'
+AND hora = '21:00:00'
+AND estado = 'confirmada';
+
+-- =========================================================================
+-- 4.6 Eventos
+-- =========================================================================
+
+--RF-EVE-01 — Consultar eventos con su estado
+SELECT
+id_evento,
+nombre,
+tematica,
+fecha,
+hora_inicio,
+hora_fin,
+estado
+FROM evento;
+
+--RF-EVE-02 — Consultar el estado de un evento
+SELECT
+id_evento,
+nombre,
+estado
+FROM evento
+WHERE id_evento = 10;
+
+--RF-EVE-03 — Actualizar el estado de un evento
+UPDATE evento
+SET estado = 'en_curso'
+WHERE id_evento = 10;
+
+--RF-EVE-04 — Actualizar el estado de un evento
+UPDATE evento
+SET estado = 'finalizado'
+WHERE id_evento = 10;
+
+--RF-EVE-05 — Cambiar el estado de un evento
+UPDATE evento
+SET estado = 'cancelado'
+WHERE id_evento = 10;
+
+--RF-EVE-06 — Consultar la ficha técnica de un evento
+SELECT
+ficha_tecnica.id_ficha_tecnica,
+evento.nombre,
+ficha_tecnica.tematica,
+ficha_tecnica.franja_horaria,
+ficha_tecnica.cantidad_invitados,
+ficha_tecnica.observaciones
+FROM ficha_tecnica
+JOIN evento
+ON ficha_tecnica.id_evento = evento.id_evento;
+
+--RF-EVE-07 — Consultar los servicios asociados a un evento
+SELECT
+evento.id_evento,
+evento.nombre,
+servicios.nombre AS servicio,
+ficha_servicio.cantidad_requerida
+FROM ficha_tecnica
+JOIN evento
+ON ficha_tecnica.id_evento = evento.id_evento
+JOIN ficha_servicio
+ON ficha_tecnica.id_ficha_tecnica = ficha_servicio.id_ficha_tecnica
+JOIN servicios
+ON ficha_servicio.id_servicio = servicios.id_servicio;
+
+--RF-EVE-08 — Consultar los empleados asociados a un evento
+SELECT
+evento.id_evento,
+evento.nombre,
+empleados.id_empleado,
+empleados.primer_nombre,
+empleados.primer_apellido
+FROM agenda_empleado
+JOIN evento
+ON agenda_empleado.id_evento = evento.id_evento
+JOIN empleados
+ON agenda_empleado.id_empleados = empleados.id_empleado;
+
+--RF-EVE-09 — Consultar la agenda de un evento
+SELECT
+agenda_eventos.id_agenda_evento,
+evento.nombre,
+agenda_eventos.fecha,
+agenda_eventos.hora,
+agenda_eventos.descripcion,
+agenda_eventos.estado
+FROM agenda_eventos
+JOIN evento
+ON agenda_eventos.id_evento = evento.id_evento;
+
+
+-- =========================================================================
+-- 4.7 Ventas, Clientes y Fidelización
+-- =========================================================================
+
+
+--RF-VEN-01 Consultar una venta con el cliente y los productos consumidos
+SELECT ventas.id_venta, clientes.primer_nombre, clientes.primer_apellido,
+productos.nombre, detalle_ventas.cantidad, detalle_ventas.precio_unitario
+FROM ventas
+JOIN clientes ON ventas.id_cliente = clientes.id_cliente
+JOIN detalle_ventas ON ventas.id_venta = detalle_ventas.id_venta
+JOIN productos ON detalle_ventas.id_producto = productos.id_producto;
+
+--RF-VEN-02 Consultar el comprobante de pago de una venta
+
+SELECT id_venta, comprobante_no, fecha_venta, total, metodo_pago, estado
+FROM ventas
+WHERE comprobante_no IS NOT NULL;
+
+--RF-VEN-03 Consultar el estado de las categorías de clientes
+
+SELECT id_categoria_cliente, nombre, estado
+FROM categoria_cliente;
+
+--RF-VEN-04 Consultar las categorías de clientes activas
+
+
+SELECT id_categoria_cliente, nombre, descripcion, estado
+FROM categoria_cliente
+WHERE estado = 'activo';
+
+--RF-VEN-05 Consultar el estado de una categoría específica
+
+SELECT id_categoria_cliente, nombre, estado
+FROM categoria_cliente
+WHERE id_categoria_cliente = 1;
+
+
+--RF-VEN-06 Consultar categorías activas e inactivas
+
+SELECT nombre, estado
+FROM categoria_cliente
+ORDER BY estado;
+
+--RF-VEN-07 Consultar los clientes con su categoría y estado
+
+SELECT clientes.id_cliente, clientes.primer_nombre,
+clientes.primer_apellido, clientes.estado,
+categoria_cliente.nombre AS categoria
+FROM clientes
+JOIN categoria_cliente
+ON clientes.id_categoria_cliente = categoria_cliente.id_categoria_cliente;
+
+--RF-VEN-08 Consultar el estado de los clientes según su categoría
+SELECT categoria_cliente.nombre AS categoria,
+clientes.primer_nombre, clientes.primer_apellido,
+clientes.estado
+FROM clientes
+JOIN categoria_cliente
+ON clientes.id_categoria_cliente = categoria_cliente.id_categoria_cliente
+ORDER BY categoria_cliente.nombre;
+
+--RF-VEN-09 Consultar clientes activos según categoría
+
+SELECT clientes.primer_nombre, clientes.primer_apellido,
+clientes.estado, categoria_cliente.nombre AS categoria
+FROM clientes
+JOIN categoria_cliente
+ON clientes.id_categoria_cliente = categoria_cliente.id_categoria_cliente
+WHERE clientes.estado = 'activo';
+
+
+--RF-VEN-10 Consultar clientes inactivos según categoría
+
+SELECT clientes.primer_nombre, clientes.primer_apellido,
+clientes.estado, categoria_cliente.nombre AS categoria
+FROM clientes
+JOIN categoria_cliente
+ON clientes.id_categoria_cliente = categoria_cliente.id_categoria_cliente
+WHERE clientes.estado = 'inactivo';
+
+
+
+-- =========================================================================
+-- 4.8  Medición de Desempeño
+-- =========================================================================
+
+--RF-DES-01 — Generar un reporte de Top 10 de clientes VIP
+SELECT
+clientes.id_cliente,
+clientes.primer_nombre,
+clientes.primer_apellido,
+SUM(ventas.total) AS total_compras
+FROM clientes
+JOIN ventas
+ON clientes.id_cliente = ventas.id_cliente
+WHERE clientes.es_vip = 1
+GROUP BY
+clientes.id_cliente,
+clientes.primer_nombre,
+clientes.primer_apellido
+ORDER BY total_compras DESC
+LIMIT 10;
+
+
+--RF-DES-02 — Generar un reporte de Top 10 de clientes generales
+
+
+SELECT
+clientes.id_cliente,
+clientes.primer_nombre,
+clientes.primer_apellido,
+SUM(ventas.total) AS total_compras
+FROM clientes
+JOIN ventas
+ON clientes.id_cliente = ventas.id_cliente
+WHERE clientes.es_vip = 0
+GROUP BY
+clientes.id_cliente,
+clientes.primer_nombre,
+clientes.primer_apellido
+ORDER BY total_compras DESC
+LIMIT 10;
+
+
+--RF-DES-03 — Mostrar los servicios más solicitados
+
+
+SELECT
+servicios.id_servicio,
+servicios.nombre,
+SUM(detalle_reserva.cantidad) AS cantidad_solicitada
+FROM servicios
+JOIN detalle_reserva
+ON servicios.id_servicio = detalle_reserva.id_servicio
+GROUP BY
+servicios.id_servicio,
+servicios.nombre
+ORDER BY cantidad_solicitada DESC;
+
+
+--RF-DES-04 — Mostrar los servicios menos solicitados
+SELECT
+servicios.id_servicio,
+servicios.nombre,
+SUM(detalle_reserva.cantidad) AS cantidad_solicitada
+FROM servicios
+JOIN detalle_reserva
+ON servicios.id_servicio = detalle_reserva.id_servicio
+GROUP BY
+servicios.id_servicio,
+servicios.nombre
+ORDER BY cantidad_solicitada ASC;
+
+
+--RF-DES-05 — Mostrar el Top 3 de productos menos vendidos
+
+
+SELECT
+productos.id_producto,
+productos.nombre,
+SUM(detalle_ventas.cantidad) AS cantidad_vendida
+FROM productos
+JOIN detalle_ventas
+ON productos.id_producto = detalle_ventas.id_producto
+GROUP BY
+productos.id_producto,
+productos.nombre
+ORDER BY cantidad_vendida ASC
+LIMIT 3;
+
+
+--RF-DES-06 — Generar reportes de ventas mes a mes
+SELECT
+YEAR(fecha_venta) AS año,
+MONTH(fecha_venta) AS mes,
+SUM(total) AS total_ventas
+FROM ventas
+WHERE estado = 'pagada'
+GROUP BY
+YEAR(fecha_venta),
+MONTH(fecha_venta)
+ORDER BY
+año,
+mes;
+
+
+--RF-DES-07 — Mostrar el día de mayor venta
+SELECT
+DATE(fecha_venta) AS fecha,
+SUM(total) AS total_ventas
+FROM ventas
+WHERE estado = 'pagada'
+GROUP BY DATE(fecha_venta)
+ORDER BY total_ventas DESC
+LIMIT 1;
+
+
+--RF-DES-08 — Mostrar el mes de mayor venta
+SELECT
+YEAR(fecha_venta) AS año,
+MONTH(fecha_venta) AS mes,
+SUM(total) AS total_ventas
+FROM ventas
+WHERE estado = 'pagada'
+GROUP BY
+YEAR(fecha_venta),
+MONTH(fecha_venta)
+ORDER BY total_ventas DESC
+LIMIT 1;
+
+--RF-DES-09 — Mostrar los subtotales de ventas mensuales
+
+SELECT
+YEAR(ventas.fecha_venta) AS año,
+MONTH(ventas.fecha_venta) AS mes,
+SUM(detalle_ventas.subtotal) AS subtotal_mensual
+FROM ventas
+JOIN detalle_ventas
+ON ventas.id_venta = detalle_ventas.id_venta
+WHERE ventas.estado = 'pagada'
+GROUP BY
+YEAR(ventas.fecha_venta),
+MONTH(ventas.fecha_venta)
+ORDER BY
+año,
+mes;
